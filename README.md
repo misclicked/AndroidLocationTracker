@@ -127,6 +127,8 @@ hw.sensors.orientation: yes
 avd.ini.encoding: UTF-8
 hw.gpu.enabled: yes
 ```
+- npm version ```6.14.4```
+- node version ```v14.2.0```
 # Contributor
 - 趙哲宏 P76081378
 - 孫祥恩 P76084708
