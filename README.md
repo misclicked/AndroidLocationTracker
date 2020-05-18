@@ -11,3 +11,6 @@
 - in ```AndroidStudioProjects/Monitor/app/src/release/res/values/google_maps_api.xml```
 - in ```AndroidStudioProjects/Nav/app/src/debug/res/values/google_maps_api.xml```
 - in ```AndroidStudioProjects/Nav/app/src/release/res/values/google_maps_api.xml```
+
+# Demo
+{%youtube NqMO225Xceo %}
