@@ -127,3 +127,7 @@ hw.sensors.orientation: yes
 avd.ini.encoding: UTF-8
 hw.gpu.enabled: yes
 ```
+# Contributor
+- 趙哲宏 P76081378
+- 孫祥恩 P76084708
+- 王宇哲 P76084758
