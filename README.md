@@ -13,4 +13,4 @@
 - in ```AndroidStudioProjects/Nav/app/src/release/res/values/google_maps_api.xml```
 
 # Demo
-{%youtube NqMO225Xceo %}
+[![Demo youtube](https://img.youtube.com/vi/NqMO225Xceo/0.jpg)](https://www.youtube.com/watch?v=NqMO225Xceo)
