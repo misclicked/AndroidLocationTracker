@@ -76,7 +76,7 @@ hw.gpu.enabled: yes
 
 - Emulator for Navigation app: 
 ```
-	Name: Pixel_2_API_26
+Name: Pixel_2_API_26
 CPU/ABI: Google Play Intel Atom (x86)
 Path: /home/misclicked/.android/avd/Pixel_2_API_26.avd
 Target: google_apis_playstore [Google Play] (API level 26)
