@@ -11,6 +11,7 @@ http.createServer(function(request,response){
         y = q.y;
         setted=true;
         response.end("UPDATE SUCCESS: "+x+","+y)
+        console.log("UPDATE SUCCESS: "+x+","+y)
     }else{
         if(setted){
             response.end(x+","+y)
