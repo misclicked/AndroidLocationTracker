@@ -56,23 +56,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         timer.schedule(trackerTask, 0, 500);
     }
 
-    public void centreMapOnLocation(LatLng location, String title){
+    public void centreMapOnLocation(LatLng location, String title, boolean first) {
         if (myMarker != null) {
             myMarker.remove();
         }
         myMarker = mMap.addMarker(new MarkerOptions().position(location).title(title));
-        CameraPosition camPosition = new CameraPosition.Builder().target(new LatLng(location.latitude, location.longitude)).zoom(16).build();
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
+        if (first) {
+            CameraPosition camPosition = new CameraPosition.Builder().target(new LatLng(location.latitude, location.longitude)).zoom(18).build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
+        }
     }
+
+    private LatLng lastSeenLoc = null;
 
     @Override
     public void processFinish(String output) {
         double[] parsed = parseResponse(output);
-        LatLng currentLoc = new LatLng(parsed[0],parsed[1]);
-        centreMapOnLocation(currentLoc, "Current location");
+        LatLng currentLoc = new LatLng(parsed[0], parsed[1]);
+        if (lastSeenLoc == null || lastSeenLoc != currentLoc) {
+            centreMapOnLocation(currentLoc, "Current location", lastSeenLoc == null);
+            lastSeenLoc = currentLoc;
+        }
     }
 
-    private double[] parseResponse(String response){
+    private double[] parseResponse(String response) {
         return new double[]{Double.parseDouble(response.split(",")[0]), Double.parseDouble(response.split(",")[1])};
     }
 }

@@ -23,23 +23,23 @@ public class HttpRequest extends AsyncTask<String, Void, String> {
         HttpURLConnection connection;
         try {
             URL url = new URL(url_);
-            connection = (HttpURLConnection)url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
 
             InputStream inputStream = connection.getInputStream();
-            if(inputStream != null){
-                InputStreamReader reader = new InputStreamReader(inputStream,"UTF-8");
+            if (inputStream != null) {
+                InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
                 BufferedReader in = new BufferedReader(reader);
 
-                String line="";
+                String line = "";
                 while ((line = in.readLine()) != null) {
-                    result += (line+"\n");
+                    result += (line + "\n");
                 }
-            } else{
+            } else {
                 result = "Did not work!";
             }
-            return  result;
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return result;
@@ -48,6 +48,7 @@ public class HttpRequest extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        delegate.processFinish(s);
+        if (delegate != null)
+            delegate.processFinish(s);
     }
 }
