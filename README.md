@@ -10,16 +10,9 @@
 ## Change IP to your own
 - In both apps' project file you'll see ip:```192.168.55.4```, just change to your own IP address
 ## Replace google_maps_key to your own key with ```Maps SDK for Android``` enabled
-- in ```AndroidStudioProjects/Monitor/app/src/debug/res/values/google_maps_api.xml```
-- in ```AndroidStudioProjects/Monitor/app/src/release/res/values/google_maps_api.xml```
-- in ```AndroidStudioProjects/Nav/app/src/debug/res/values/google_maps_api.xml```
-- in ```AndroidStudioProjects/Nav/app/src/release/res/values/google_maps_api.xml```
-
+- in ```google_maps_api.xml```
 ## Replace google_direction_key to your own keys with ```Directions API``` enabled
-- in ```AndroidStudioProjects/Monitor/app/src/debug/res/values/google_maps_api.xml```
-- in ```AndroidStudioProjects/Monitor/app/src/release/res/values/google_maps_api.xml```
-- in ```AndroidStudioProjects/Nav/app/src/debug/res/values/google_maps_api.xml```
-- in ```AndroidStudioProjects/Nav/app/src/release/res/values/google_maps_api.xml```
+- in ```google_maps_api.xml```
 
 # Demo
 [![Demo youtube](https://img.youtube.com/vi/NqMO225Xceo/0.jpg)](https://www.youtube.com/watch?v=NqMO225Xceo)

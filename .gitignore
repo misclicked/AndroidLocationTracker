@@ -1,2 +1,8 @@
 # exclude demo file
 Demo.mp4
+
+# output files
+[Oo]utput/
+
+# apk files
+*.apk
