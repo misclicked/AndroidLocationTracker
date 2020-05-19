@@ -51,6 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void centreMapOnLocation(Location location, String title, boolean first) {
+        first = true;
         //if (location == null) return;
         LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
         if (myMarker != null) {

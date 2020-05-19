@@ -57,6 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void centreMapOnLocation(LatLng location, String title, boolean first) {
+        first = true;
         if (myMarker != null) {
             myMarker.remove();
         }
@@ -73,7 +74,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void processFinish(String output) {
         double[] parsed = parseResponse(output);
         LatLng currentLoc = new LatLng(parsed[0], parsed[1]);
-        if (lastSeenLoc == null || lastSeenLoc != currentLoc) {
+        if (lastSeenLoc == null || lastSeenLoc.latitude != currentLoc.latitude && lastSeenLoc.longitude != currentLoc.longitude) {
             centreMapOnLocation(currentLoc, "Current location", lastSeenLoc == null);
             lastSeenLoc = currentLoc;
         }
