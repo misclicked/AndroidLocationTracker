@@ -6,3 +6,8 @@ Demo.mp4
 
 # apk files
 *.apk
+
+# report files
+*.docx
+Report.txt
+
