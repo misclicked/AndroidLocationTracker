@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Monitor</string>
     <string name="title_activity_maps">Monitor</string>
+    <string name="server_ip_v6">misclicked.dynv6.net</string>
 </resources>

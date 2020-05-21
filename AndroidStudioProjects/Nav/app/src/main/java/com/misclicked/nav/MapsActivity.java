@@ -1,18 +1,26 @@
 package com.misclicked.nav;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,17 +40,47 @@ import org.json.JSONObject;
 import java.util.List;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SharedPreferences.OnSharedPreferenceChangeListener,
+        LocationResponse {
 
     private GoogleMap mMap;
     private LatLng tree = new LatLng(23.000398, 120.216153);
-    private LocationManager locationManager;
     private Marker myMarker;
-    LocationListener locationListener;
+    private LocationManager locationManager;
+
+    // The BroadcastReceiver used to listen from broadcasts from the service.
+    private MyReceiver myReceiver;
+
+    // A reference to the service used to get location updates.
+    private LocationUpdatesService mService = null;
+
+    // Tracks the bound state of the service.
+    private boolean mBound = false;
+
+    // Monitors the state of the connection to the service.
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+            mService = binder.getService();
+            mService.requestLocationUpdates();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+            mBound = false;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myReceiver = new MyReceiver();
+        myReceiver.delegate = this;
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -50,13 +88,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to the service. If the service is in foreground mode, this signals to the service
+        // that since this activity is in the foreground, the service can exit foreground mode.
+        bindService(new Intent(this, LocationUpdatesService.class), mServiceConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+        super.onPause();
+    }
+
     public void centreMapOnLocation(Location location, String title, boolean first) {
         first = true;
-        //if (location == null) return;
         LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-        if (myMarker != null) {
+        if (myMarker != null)
             myMarker.remove();
-        }
         myMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title(title));
         if (first) {
             CameraPosition camPosition = new CameraPosition.Builder().target(new LatLng(location.getLatitude(), location.getLongitude())).zoom(18).build();
@@ -65,40 +135,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         Intent intent = getIntent();
 
         if (intent.getIntExtra("Place Number", 0) == 0) {
-
-            // Zoom into users location
-            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            locationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    new HttpRequest().execute("http://[2001:288:7001:270a:5d01:9f26:e46b:97a9]/upload?x=" + location.getLatitude() + "&y=" + location.getLongitude());
-                    centreMapOnLocation(location, "Your Location", false);
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-
-                }
-            };
-
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
                 List<String> providers = locationManager.getAllProviders();
                 Location bestLocation = null;
                 ;
@@ -112,10 +157,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         bestLocation = l;
                     }
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 initialLocation(lastKnownLocation == null ? bestLocation : lastKnownLocation);
-                new HttpRequest().execute("http://[2001:288:7001:270a:5d01:9f26:e46b:97a9]/upload?x="
+                new HttpRequest().execute("http://" + getString(R.string.server_ip_v6) + "/upload?x="
                         + (lastKnownLocation == null ? bestLocation : lastKnownLocation).getLatitude()
                         + "&y=" + (lastKnownLocation == null ? bestLocation : lastKnownLocation).getLongitude());
             } else {
@@ -130,32 +174,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
                 List<String> providers = locationManager.getAllProviders();
                 Location bestLocation = null;
                 ;
                 for (String provider : providers) {
                     Location l = locationManager.getLastKnownLocation(provider);
-                    if (l == null) {
+                    if (l == null)
                         continue;
-                    }
-                    if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                        // Found best last known location: %s", l);
+                    if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy())
                         bestLocation = l;
-                    }
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 initialLocation(lastKnownLocation == null ? bestLocation : lastKnownLocation);
-                new HttpRequest().execute("http://[2001:288:7001:270a:5d01:9f26:e46b:97a9]/upload?x="
+                new HttpRequest().execute("http://" + getString(R.string.server_ip_v6) + "/upload?x="
                         + (lastKnownLocation == null ? bestLocation : lastKnownLocation).getLatitude()
                         + "&y=" + (lastKnownLocation == null ? bestLocation : lastKnownLocation).getLongitude());
+                mService.requestLocationUpdates();
             }
         }
     }
 
     private void initialLocation(Location lastKnownLocation) {
-        //if (lastKnownLocation == null) return;
         centreMapOnLocation(lastKnownLocation, "Your Location", true);
 
         HttpRequest httpRequest = new HttpRequest();
@@ -174,7 +214,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         httpRequest.execute("https://maps.googleapis.com/maps/api/directions/json?" +
                 "origin=" + lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude() + "&" +
                 "destination=" + tree.latitude + "," + tree.longitude + "&" +
-                "mode=walking&" +
+                "mode=driving&" +
                 "key=" + getString(R.string.google_direction_key));
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+    }
+
+    @Override
+    public void processFinish(Location location) {
+        centreMapOnLocation(location, "Your Location", false);
+    }
+
+    /**
+     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
+     */
+    private class MyReceiver extends BroadcastReceiver {
+
+        public LocationResponse delegate = null;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Location location = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+            if (location != null) {
+                delegate.processFinish(location);
+            }
+        }
     }
 }

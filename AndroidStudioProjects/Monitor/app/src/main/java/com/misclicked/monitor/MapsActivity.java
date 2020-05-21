@@ -53,6 +53,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         timer = new Timer();
         trackerTask = new TrackerTask();
         trackerTask.delegate = this;
+        trackerTask.trackUrl = "http://" + getString(R.string.server_ip_v6) + "/track";
         timer.schedule(trackerTask, 0, 500);
     }
 
