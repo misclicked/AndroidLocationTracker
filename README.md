@@ -1,5 +1,5 @@
 # Android Location Tracker
-- Navigation app: navigate ```user A``` form [NCKUCSIE](https://goo.gl/maps/B5V5brdFbGuDMofz8) to [國立成功大學榕園](https://goo.gl/maps/TY6PLecP8WCaPyfC8)
+- Navigation app: navigate ```user A``` form [Your Current Location to 國立成功大學榕園](https://www.google.com/maps/dir/Current+Location/%E5%9C%8B%E7%AB%8B%E6%88%90%E5%8A%9F%E5%A4%A7%E5%AD%B8%E6%A6%95%E5%9C%92)
 - Monitoring app: shows the real time location of ```user A```
 # How to Run
 ## Apps: Build with Android Studio
@@ -7,12 +7,8 @@
 - ```AndroidStudioProjects/Monitor``` for Monitoring app
 ## Server: Build with nodeJS
 - go to ```LocationUpdateServer/LocationTracter/``` run ```sudo npm test``` or ```sudo node index.js```
-## Change IP to your own
-- In both apps' project file you'll see ip:```192.168.55.4```, just change to your own IP address
-## Replace google_maps_key to your own key with ```Maps SDK for Android``` enabled
-- in ```google_maps_api.xml```
-## Replace google_direction_key to your own keys with ```Directions API``` enabled
-- in ```google_maps_api.xml```
+## [Check if server is down](https://downforeveryoneorjustme.com/misclicked.dynv6.net)
+
 
 # Demo
 [![Demo youtube](https://img.youtube.com/vi/tEfzAt6TMEo/0.jpg)](https://www.youtube.com/watch?v=tEfzAt6TMEo)
