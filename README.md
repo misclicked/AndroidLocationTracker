@@ -8,6 +8,7 @@
 ## Server: Build with nodeJS
 - go to ```LocationUpdateServer/LocationTracter/``` run ```sudo npm test``` or ```sudo node index.js```
 ## [Check if server is down](https://downforeveryoneorjustme.com/misclicked.dynv6.net)
+- Now only supports one(and only) navagation to monitors
 
 
 # Demo
